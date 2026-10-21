@@ -18,7 +18,10 @@ def get_lemniscate_keypoint(t, a=0.2):
         y (float or np.ndarray): y coordinates of the keypoint on the lemniscate.
         z (float or np.ndarray): z coordinates of the keypoint on the lemniscate.
     """
-    raise NotImplementedError()
+    denom = 1.0 + np.sin(t) ** 2
+    y = a * np.cos(t) / denom
+    z = a * np.cos(t) * np.sin(t) / denom
+    return y, z
 
 def build_keypoints(count=16, width=0.25, x_offset=0.3, z_offset=0.25):
     """TODO:
@@ -38,7 +41,10 @@ def build_keypoints(count=16, width=0.25, x_offset=0.3, z_offset=0.25):
     Returns:
         np.ndarray: Array of shape (count, 3) containing the generated keypoints.
     """
-    raise NotImplementedError()
+    t = np.linspace(0.0, 2.0 * np.pi, count, endpoint=False)
+    y, z = get_lemniscate_keypoint(t, a=width)
+    x = np.full(count, x_offset)
+    return np.column_stack((x, y, z + z_offset))
 
 def ik_track(model, data, site_name, target_pos,
              damping=1e-3, pos_gain=2.0, dt=0.1, max_iters=2000):
@@ -81,25 +87,26 @@ def ik_track(model, data, site_name, target_pos,
         mujoco.mj_kinematics(model, data)
         mujoco.mj_comPos(model, data)
 
-        # TODO: compute end-effector position error
-        err_pos = ...
+        # Position error of the end-effector site in world coordinates.
+        err_pos = target_pos - data.site(site_name).xpos
 
-        # TODO: check if the 2-norm of the position error is within a small threshold (1e-3), if yes, break the loop
-        ...
-        
+        # Stop once the site is within 1 mm of the target.
+        if np.linalg.norm(err_pos) < 1e-3:
+            break
+
         # Get the Jacobian of the end-effector using mj_jacSite.
         jacp = np.zeros((3, num_joints)) # position Jacobian
         jacr = np.zeros((3, num_joints)) # orientation Jacobian
         mujoco.mj_jacSite(model, data, jacp, jacr, model.site(site_name).id)
         J = np.vstack([jacp, jacr])  # shape (6, nv)
 
-        # TODO: compute the change in joint configuration (qdot) using Damped Least Squares method to reduce the position error
         # Damped least squares: qdot = J^T @ (J @ J^T + damping * I)^-1 @ weighted_err
-        # Hint: damping * I is a 6x6 matrix with damping on the diagonal, and weighted error is a 6D vector (3 for pos, 3 for rot) of the form 
-        # [pos_gain * err_pos, rot_gain * err_rot]. Since we are ignoring orientation tracking, you can set the rotational part of the weighted error to zero.
-        # Instead of directly computing the matrix inverse (which can be numerically unstable), you should use np.linalg.solve to solve the 
-        # linear system (J @ J^T + damping * I) x = weighted_err for x, and then compute qdot = J^T @ x. This is more stable and efficient than computing the inverse.
-        qdot = ...
+        # Orientation is ignored, so the rotational half of the task error stays zero.
+        # Solve (J @ J^T + damping * I) x = weighted_err instead of inverting the matrix.
+        weighted_err = np.zeros(6)
+        weighted_err[:3] = pos_gain * err_pos
+        A = J @ J.T + damping * np.eye(6)
+        qdot = J.T @ np.linalg.solve(A, weighted_err)
 
         # optional clamp to avoid overshoot
         qdot = np.clip(qdot, -2.0, 2.0)
