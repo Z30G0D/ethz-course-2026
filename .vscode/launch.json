@@ -1,0 +1,26 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug ex1 IK loop",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/hw2_robot_control_mdps/scripts/debug_ex1_ik.py",
+            "python": "${workspaceFolder}/mujoco/bin/python",
+            "cwd": "${workspaceFolder}/hw2_robot_control_mdps",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "python": "${workspaceFolder}/mujoco/bin/python",
+            "console": "integratedTerminal"
+        }
+    ]
+}
