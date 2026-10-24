@@ -25,6 +25,16 @@
             "justMyCode": true
         },
         {
+            "name": "Debug ex2 PID",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/hw2_robot_control_mdps/scripts/debug_ex2_pid.py",
+            "python": "${workspaceFolder}/mujoco/bin/python",
+            "cwd": "${workspaceFolder}/hw2_robot_control_mdps",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "Python Debugger: Current File",
             "type": "debugpy",
             "request": "launch",
