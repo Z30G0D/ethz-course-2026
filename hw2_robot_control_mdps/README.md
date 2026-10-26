@@ -151,9 +151,12 @@ A viewer window should pop up showing the robot smoothly moving between several 
 
 To get a feeling for the choice of the PID gains, you will analyze how their choice influences the behavior of the waypoint tracking. 
 Test different settings of the gains to be able to answer the following:
-1. If you keep increasing $K_P$, what issue arises when tracking the waypoints?/
+1. If you keep increasing $K_P$, what issue arises when tracking the waypoints?
+A: At some point the motion becomes unstable and the ee does not follow the waypoints
 2. How does $K_D$ mitigate the effect you saw above when increasing $K_P$?
+A: Kd is damping the unstability that the Kp causes.
 3. In what scenarios is a non-zero $K_I$ needed for the controller to perform well?
+A: When you have some constant load that increases the torque, Kp and Kd will attend constant disturbance but they leave joint offset.
 
 There is no need to show these behavior changes in the video and you can just write down your answers in the video. Or say them out loud.
 The theoretical questions require only short and direct answers. Each question is expected to have a 1-sentence answer.
@@ -168,7 +171,7 @@ The theoretical questions require only short and direct answers. Each question i
 
 In this exercise, we will get to the simulation of Markov Decision Processes (MDPs) and train a reinforcement learning (RL) policy to track randomly chosen waypoints.
 Compared to the previous exercise, the pipeline also changed and has the following structure:
-
+%
 1. **Observation:** The environment constructs an observation vector containing the current environment states (robot & target). This is sent to the RL agent.
 2. **Action Prediction:** The RL agent predicts a normalized action in the range `[-1, 1]` at a control frequency of **10 Hz** (every 0.1 seconds).
 3. **Action Processing:** The environment receives the normalized action and converts it into joint position targets within the robot's physical limits.
