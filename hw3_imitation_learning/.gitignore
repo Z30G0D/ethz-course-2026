@@ -1,0 +1,6 @@
+datasets/
+**/zarr.json
+
+__pycache__/
+*.py[cod]
+*.egg-info/
