@@ -45,11 +45,13 @@ def train_one_epoch(
     n_batches = 0
 
     for batch in loader:
-        states, action_chunks = batch
-        predicted_actions = model.forward()
-        
         # TODO: Implement the training step for one batch here.
         # This mostly: Get states and action_chunks onto the correct device, compute the loss, and step the optimizer.
+        states, action_chunks = batch
+
+        loss = model.compute_loss(states, action_chunks)
+        total_loss+=loss
+        optimizer.step()
 
     return total_loss / max(n_batches, 1)
 
@@ -226,6 +228,8 @@ def main() -> None:
                         "action_std": normalizer.action_std,
                     },
                     "chunk_size": args.chunk_size,
+                    "d_model": getattr(model, "d_model", 64),
+                    "depth": getattr(model, "depth", 2),
                     "policy_type": args.policy,
                     "state_keys": args.state_keys,
                     "action_keys": args.action_keys,
