@@ -37,15 +37,36 @@ class ObstaclePolicy(BasePolicy):
     (chunk_size * action_dim) and reshapes to (B, chunk_size, action_dim).
     """
 
-    def forward(self) -> torch.Tensor:
+    def __init__(
+        self,
+        state_dim: int,
+        action_dim: int,
+        chunk_size: int,
+        d_model: int = 64,
+        depth: int = 2,
+    ) -> None:
+        super().__init__(state_dim, action_dim, chunk_size)
+        self.d_model = d_model
+        self.depth = depth
+        out_dim = chunk_size * action_dim
+        self.net = nn.Sequential(
+            nn.Linear(state_dim, d_model),
+            nn.ReLU(),
+            nn.Linear(d_model, d_model),
+            nn.ReLU(),
+            nn.Linear(d_model, out_dim),
+        )
+
+    def forward(self, state: torch.Tensor) -> torch.Tensor:
         """Return predicted action chunk of shape (B, chunk_size, action_dim)."""
-        raise NotImplementedError
+        flat = self.net(state)
+        return flat.view(-1, self.chunk_size, self.action_dim)
 
     def compute_loss(self, state: torch.Tensor, action_chunk: torch.Tensor) -> torch.Tensor:
-        raise NotImplementedError
+        return nn.functional.mse_loss(self.forward(state), action_chunk)
 
     def sample_actions(self, state: torch.Tensor) -> torch.Tensor:
-        raise NotImplementedError
+        return self.forward(state)
 
 
 # TODO: Students implement MultiTaskPolicy here.
@@ -71,13 +92,17 @@ def build_policy(
     *,
     state_dim: int,
     action_dim: int,
-    # TODO,
+    chunk_size: int,
+    d_model: int = 64,
+    depth: int = 2,
 ) -> BasePolicy:
     if policy_type == "obstacle":
         return ObstaclePolicy(
             action_dim=action_dim,
             state_dim=state_dim,
-            # TODO: Build with your chosen specifications
+            chunk_size=chunk_size,
+            d_model=d_model,
+            depth=depth,
         )
     if policy_type == "multitask":
         return MultiTaskPolicy(
