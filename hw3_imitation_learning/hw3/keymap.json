@@ -22,7 +22,7 @@
     "ascii": 3,
     "label": "raw:63235",
     "description": "Move EE right (+X) (recommended: RIGHT ARROW)"
-  },
+  }, 
   "move_forward": {
     "raw": 119,
     "ascii": 119,
