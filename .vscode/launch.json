@@ -45,6 +45,41 @@
             "justMyCode": true
         },
         {
+            "name": "Debug hw3 train step",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/hw3_imitation_learning/scripts/debug_train_step.py",
+            "python": "${workspaceFolder}/hw3_imitation_learning/.venv/bin/python",
+            "cwd": "${workspaceFolder}/hw3_imitation_learning",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Debug hw3 train.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/hw3_imitation_learning/scripts/train.py",
+            "python": "${workspaceFolder}/hw3_imitation_learning/.venv/bin/python",
+            "cwd": "${workspaceFolder}/hw3_imitation_learning",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--zarr",
+                "datasets/processed/single_cube/processed_ee_xyz.zarr",
+                "--policy",
+                "obstacle",
+                "--state-keys",
+                "state_ee_xyz",
+                "state_gripper",
+                "state_cube",
+                "state_obstacle",
+                "--action-keys",
+                "action_ee_xyz",
+                "action_gripper",
+                "--chunk-size","16"
+            ]
+        },
+        {
             "name": "Python Debugger: Current File",
             "type": "debugpy",
             "request": "launch",

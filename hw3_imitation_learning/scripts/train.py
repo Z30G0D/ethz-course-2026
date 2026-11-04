@@ -28,9 +28,9 @@ from hw3.model import BasePolicy, build_policy
 from torch.utils.data import DataLoader, random_split
 
 # TODO: Choose your own hyperparameters!
-EPOCHS = ... 
-BATCH_SIZE = ...
-LR = ...
+EPOCHS = 2
+BATCH_SIZE = 8
+LR = 0.0001
 VAL_SPLIT = 0.1
 
 
@@ -46,6 +46,8 @@ def train_one_epoch(
 
     for batch in loader:
         states, action_chunks = batch
+        predicted_actions = model.forward()
+        
         # TODO: Implement the training step for one batch here.
         # This mostly: Get states and action_chunks onto the correct device, compute the loss, and step the optimizer.
 
@@ -74,6 +76,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Train action-chunking policy.")
     parser.add_argument(
         "--zarr", type=Path, required=True, help="Path to processed .zarr store."
+    )
+    parser.add_argument(
+        "--extra-zarr",
+        type=Path,
+        nargs="+",
+        default=None,
+        help="Additional processed .zarr stores to merge with --zarr.",
     )
     parser.add_argument(
         "--policy",
@@ -159,15 +168,15 @@ def main() -> None:
         args.policy,
         state_dim=states.shape[1],
         action_dim=actions.shape[1],
+        chunk_size=args.chunk_size
         # TODO: build with your desired specifications
     ).to(device)
 
     n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"Model parameters: {n_params:,}")
 
-    # TODO: implement an optimizer and scheduler
-    # optimizer =
-    # scheduler =
+    optimizer = torch.optim.Adam(model.parameters(), lr=LR)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS)
 
     # ── training loop ─────────────────────────────────────────────────
     best_val = float("inf")
